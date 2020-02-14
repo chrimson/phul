@@ -1,15 +1,11 @@
 #!/usr/bin/python -B
-import re
+import json
 import requests
 
-# from urllib3.exceptions import InsecureRequestWarning
-# requests.packages.urllib3.disable_warnings(category = InsecureRequestWarning)
-
-response = requests.get('https://www.google.com',
+response = requests.get('https://www.powerball.com/api/v1/numbers/powerball?_format=json&min=1990-01-14%2000:00:00&max=2014-02-14%2000:00:00',
                         verify = False,
                         headers = {'Content-Type':'application/json'})
-
-f = re.findall('google', response.text)
-
 print
-print(f)
+
+j = json.loads(response.text)
+print(json.dumps(j, indent=4))

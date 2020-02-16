@@ -6,7 +6,7 @@ import sqlite3
 db = sqlite3.connect('games.db')
 c = db.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='pb'")
 if c.fetchone()[0] == 0:
-    db.execute("CREATE TABLE pb (date TEXT, b1 TEXT, b2 TEXT, b3 TEXT, b4 TEXT, b5 TEXT, b6 TEXT)")
+    db.execute("CREATE TABLE pb (date, b1, b2, b3, b4, b5, b6)")
 
 for year in range(1997, 2021):
     for half in [('01-01', '06-30'), ('07-01', '12-31')]:
@@ -27,6 +27,31 @@ for year in range(1997, 2021):
             b = re.split(',', drawing['field_winning_numbers'])
             db.execute("INSERT INTO pb VALUES ('%s', '%02d', '%02d', '%02d', '%02d', '%02d', '%02d')" %
                            (date, int(b[0]), int(b[1]), int(b[2]), int(b[3]), int(b[4]), int(b[5])))
-
 db.commit()
+
+
+c = db.execute("SELECT * FROM pb ORDER BY date")
+nb = {}
+pb = {}
+for r in c:
+    for n in range(1, 6):
+        if r[n] not in nb.keys():
+            nb[r[n]] = ['', 0]
+        nb[r[n]][0] = r[0]
+        nb[r[n]][1] += 1
+
+    if r[6] not in pb.keys():
+        pb[r[6]] = ['', 0]
+    pb[r[6]][0] = r[0]
+    pb[r[6]][1] += 1
 db.close()
+
+
+def by_date(item):
+    return item[1][0]
+
+def by_freq(item):
+    return item[1][1]
+
+for p in sorted(pb.items(), key=by_date, reverse=True):
+    print(p)

@@ -4,6 +4,7 @@ import re
 import requests
 import sqlite3
 
+
 formats = [
     ['1997-11-01', 55, 42],
     ['2009-01-07', 59, 39],
@@ -11,12 +12,19 @@ formats = [
     ['2015-10-07', 69, 26]
 ]
 
+
+def by_date(item):
+    return item[1][0]
+
+def by_freq(item):
+    return item[1][1]
+
+
 db = sqlite3.connect('games.db')
 c = db.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='pb'")
 if c.fetchone()[0] == 0:
     db.execute("CREATE TABLE pb (date, b1, b2, b3, b4, b5, b6)")
 
-if False:
     for year in range(1997, 2021):
         for half in [('01-01', '06-30'), ('07-01', '12-31')]:
             response = requests.get(
@@ -40,12 +48,14 @@ db.commit()
 
 
 c = db.execute("SELECT max(date) FROM pb")
-print(c.fetchone())
+#print(c.fetchone())
 
 
 c = db.execute("SELECT * FROM pb ORDER BY date")
 nb = {}
 pb = {}
+mn = 0
+#total = 0
 for r in c:
     for n in range(1, 6):
         if r[n] not in nb.keys():
@@ -53,9 +63,17 @@ for r in c:
         nb[r[n]][0] = r[0]
         nb[r[n]][1] += 1
 
+    if r[0] == '2009-01-03':
+        for n in nb.items():
+            mn = n[1][1] if n[1][1] < mn or mn == 0 else mn
+#            total += n[1][1]
+#        print('min ' + str(mn))
+#        print('total %s / 55 = %s' % (str(total), str(int(total/55))))
+
     if r[0] == '2012-01-18':
-        for n in range(56,60):
-            nb['%02d' % n][1] += int(1167*5/55)
+        for n in range(56, 60):
+#            nb['%02d' % n][1] += total/55
+            nb['%02d' % n][1] += mn
 
     if r[6] not in pb.keys():
         pb[r[6]] = ['', 0]
@@ -64,16 +82,11 @@ for r in c:
 db.close()
 
 
-def by_date(item):
-    return item[1][0]
-
-def by_freq(item):
-    return item[1][1]
-
 for n in sorted(nb.items(), key=by_freq, reverse=True):
     print(n)
 
 print('')
 
 for p in sorted(pb.items(), key=by_date, reverse=True):
-    print(p)
+    if p[0] < '27':
+        print(p)

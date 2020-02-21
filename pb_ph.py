@@ -99,18 +99,17 @@ db.close()
 
 for n in sorted(nb.items(), key=by_date, reverse=True):
     print(n)
-print()
+print
 
 for n in sorted(nb.items(), key=by_freq, reverse=True):
     print(n)
-print()
+print
 
 for p in sorted(pb.items(), key=by_date, reverse=True):
-    if p[0] < '27':
+    if p[0] <= str(formats[len(formats) - 2][2]):
         print(p)
-print()
+print
 
 for p in sorted(pb.items(), key=by_freq, reverse=True):
-    if p[0] < '27':
+    if p[0] <= str(formats[len(formats) - 2][2]):
         print(p)
-print()

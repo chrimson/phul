@@ -1,2 +1,2 @@
-# Rho
+# ρ
 Random Heuristic Ordering

@@ -37,7 +37,7 @@ db = sqlite3.connect('rho.db')
 c = db.execute('SELECT count(name) FROM sqlite_master ' +
                    'WHERE type="table" AND name="%s"' % name)
 if c.fetchone()[0] == 0:
-    db.execute("CREATE TABLE %s (date, b1, b2, b3, b4, b5, b6)" % name)
+    db.execute('CREATE TABLE %s (date, b1, b2, b3, b4, b5, b6)' % name)
 
 if name.startswith('sim_'):
     days = 4
@@ -64,7 +64,7 @@ if name.startswith('sim_'):
             days = 4 if days == 3 else 3
 
 else:
-    c = db.execute("SELECT max(date) FROM %s" % name)
+    c = db.execute('SELECT max(date) FROM %s' % name)
     lt = c.fetchone()[0]
     if lt is None:
         lt = fmt[0][0]
@@ -135,22 +135,24 @@ else:
                                         drawing['MBall']))
  
             except:
-                print("Problem with connection")
+                print('Problem with connection')
                 exit()
 
 db.commit()
 
 
-c = db.execute("SELECT max(date) FROM %s" % name)
+c = db.execute('SELECT max(date) FROM %s' % name)
 lt = c.fetchone()[0]
 fmt.append([lt])
 
-c = db.execute("SELECT * FROM %s ORDER BY date" % name)
+c = db.execute('SELECT * FROM %s ORDER BY date' % name)
 nb = {}
 bb = {}
 mn = []
+mb = []
 for m in range(len(fmt) - 1):
     mn.append(0)
+    mb.append(0)
 
 print('History')
 for r in c:
@@ -160,10 +162,14 @@ for r in c:
         if r[0] == fmt[f][0]:
             for n in nb.items():
                 mn[f] = n[1][1] if n[1][1] < mn[f] or mn[f] == 0 else mn[f]
+            for b in bb.items():
+                mb[f] = b[1][1] if b[1][1] < mb[f] or mb[f] == 0 else mb[f]
 
         if r[0] == fmt[f + 1][0]:
             for n in range(fmt[f - 1][1] + 1, fmt[f][1] + 1):
                 nb['%02d' % n][1] += mn[f]
+            for b in range(fmt[f - 1][2] + 1, fmt[f][2] + 1):
+                bb['%02d' % b][1] += mb[f]
  
     for n in range(1, 6):
         if r[n] not in nb.keys():
@@ -181,11 +187,13 @@ db.close()
 
 print('\nN date')
 for n in sorted(nb.items(), key=by_date, reverse=True):
-    print(n)
+    if n[0] <= str(fmt[len(fmt) - 2][1]):
+        print(n)
 
 print('\nN freq')
 for n in sorted(nb.items(), key=by_freq, reverse=True):
-    print(n)
+    if n[0] <= str(fmt[len(fmt) - 2][1]):
+        print(n)
 
 print('\nB date')
 for b in sorted(bb.items(), key=by_date, reverse=True):

@@ -93,9 +93,9 @@ else:
                                            'WHERE date="%s"' % date)
                         if c.fetchone()[0] == 0:
                             b = re.split(',', drawing['field_winning_numbers'])
-                            db.execute('INSERT INTO %s VALUES ' +
-                                           '("%s", "%02d", ' % (name, date) + 
-                                           '"%02d", "%02d", "%02d", "%02d", "%02d")' %
+                            db.execute('INSERT INTO %s VALUES ' % name +
+                                           '("%s", ' % date + 
+                                           '"%02d", "%02d", "%02d", "%02d", "%02d", "%02d")' %
                                            (int(b[0]),
                                             int(b[1]),
                                             int(b[2]),
@@ -107,13 +107,13 @@ else:
                 for year in range(yr0, yr1 + 1):
                     payload = '''{
                                      pageSize: 108,
-                                     startDate: "%s/%s",
-                                     endDate: "%s/%s",
+                                     startDate: "01/01/%s",
+                                     endDate: "12/31/%s",
                                      pageNumber: 1
-                                 }''' % ('01/01', year, '12/31', year)
+                                 }''' % (year, year)
                     response = requests.post(
-                        'https://www.%s.com/cmspages/utilservice.asmx/' +
-                            'GetDrawingPagingData' % name,
+                        'https://www.%s.com/cmspages/utilservice.asmx/' % name +
+                            'GetDrawingPagingData',
                         verify = False,
                         headers = {'Content-Type':'application/json'},
                         data = payload)
@@ -124,9 +124,9 @@ else:
                         c = db.execute('SELECT count(date) FROM %s ' % name +
                                            'WHERE date="%s"' % date)
                         if c.fetchone()[0] == 0:
-                            db.execute('INSERT INTO %s VALUES ' +
-                                           '("%s", "%02d", ' % (name, date) +
-                                           '"%02d", "%02d", "%02d", "%02d", "%02d")' %
+                            db.execute('INSERT INTO %s VALUES ' % name +
+                                           '("%s", ' % date +
+                                           '"%02d", "%02d", "%02d", "%02d", "%02d", "%02d")' %
                                        (drawing['N1'],
                                         drawing['N2'],
                                         drawing['N3'],

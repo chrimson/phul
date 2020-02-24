@@ -93,8 +93,34 @@ else:
                             db.execute('INSERT INTO %s VALUES ("%s", "%02d", "%02d", "%02d", "%02d", "%02d", "%02d")' %
                                        (name, date, int(b[0]), int(b[1]), int(b[2]), int(b[3]), int(b[4]), int(b[5])))
         except:
-            print("Problem with connection")
-            exit()
+            try:
+                for year in range(yr0, yr1 + 1):
+                    for half in [('01/01', '06/30'), ('07/01', '12/31')]:
+                        payload = '{pageSize: 54, startDate: "%s/%s", endDate: "%s/%s", pageNumber: 1 }' % (half[0], year, half[1], year)
+                        response = requests.post('https://www.%s.com/cmspages/utilservice.asmx/GetDrawingPagingData' % name,
+                                                 verify = False,
+                                                 headers = {'Content-Type':'application/json'},
+                                                 data = payload)
+                        drawings = json.loads(response.json()['d'])['DrawingData']
+                        #print(json.dumps(drawings, indent=4))
+                    
+                        for drawing in drawings:
+                            date = drawing['PlayDate'][0:10]
+                            c = db.execute('SELECT count(date) FROM %s WHERE date="%s"' % (name, date))
+                            if c.fetchone()[0] == 0:
+                                db.execute('INSERT INTO %s VALUES ("%s", "%02d", "%02d", "%02d", "%02d", "%02d", "%02d")' %
+                                           (name,
+                                            date,
+                                            drawing['N1'],
+                                            drawing['N2'],
+                                            drawing['N3'],
+                                            drawing['N4'],
+                                            drawing['N5'],
+                                            drawing['MBall']))
+ 
+            except:
+                print("Problem with connection")
+                exit()
 
 db.commit()
 

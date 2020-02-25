@@ -52,7 +52,13 @@ if name.startswith('sim_'):
         while date < next_fmt:
             sb = []
             for n in range(0, 5):
-                sb.append('"%02d"' % random.randint(1, fmt[f][1]))
+                rb = 0
+                while rb == 0:
+                    rb = random.randint(1, fmt[f][1])
+                    if '"%02d"' % rb not in sb:
+                        sb.append('"%02d"' % rb)
+                    else:
+                        rb = 0
             sb.append('"%02d"' % random.randint(1, fmt[f][2]))
             bs = ','.join(sb)
 
@@ -156,6 +162,10 @@ for m in range(len(fmt) - 1):
 
 print('History')
 for r in c:
+    if r[0] == lt:
+        for n in range(1, 6):
+            print('    %s %s' % (r[n], str(nb[r[n]])))
+        print('    %s %s' % (r[6], str(bb[r[6]])))
     print(r)
 
     for f in range(1, len(fmt) - 1):
